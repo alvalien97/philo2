@@ -58,6 +58,13 @@ void	*philo_routine(void *arg)
 			pthread_mutex_unlock(&ph->data->count_mut);
 			pthread_mutex_unlock(&ph->data->meal_check);
 			break ;
+			while (!get_stop(ph->data))
+        	{
+            print_action(ph, "is sleeping");
+            ft_usleep(ph->data->sleep);
+            print_action(ph, "is thinking");
+        	}
+        return NULL;
 		}
 		pthread_mutex_unlock(&ph->data->meal_check);
 		print_action(ph, "is sleeping");
