@@ -28,16 +28,36 @@ void	philo_eat(t_philo *ph)
 		pthread_mutex_lock(ph->right);
 		print_action(ph, "has taken a fork");
 	}
-	pthread_mutex_lock(&ph->data->meal_check);
 	print_action(ph, "is eating");
-	ph->last_meal = get_time();
-	pthread_mutex_unlock(&ph->data->meal_check);
 	ft_usleep(ph->data->eat);
 	pthread_mutex_lock(&ph->data->meal_check);
+	ph->last_meal = get_time();
 	ph->meals++;
 	pthread_mutex_unlock(&ph->data->meal_check);
 	pthread_mutex_unlock(ph->left);
 	pthread_mutex_unlock(ph->right);
+}
+
+static void	philo_rest_max(t_philo *ph)
+{
+	long	total_rest;
+	long	start;
+	int		flag;
+
+	flag = 0;
+	total_rest = ph->data->die;
+	pthread_mutex_lock(&ph->data->meal_check);
+	start = ph->last_meal;
+	pthread_mutex_unlock(&ph->data->meal_check);
+	while (!get_stop(ph->data) && (get_time() - start) < total_rest)
+	{
+		if (flag == 0)
+		{
+			print_action(ph, "is thinking");
+			ft_usleep(10);
+			flag = 1;
+		}
+	}
 }
 
 void	*philo_routine(void *arg)
@@ -57,14 +77,8 @@ void	*philo_routine(void *arg)
 			ph->data->full_count++;
 			pthread_mutex_unlock(&ph->data->count_mut);
 			pthread_mutex_unlock(&ph->data->meal_check);
-			break ;
-			while (!get_stop(ph->data))
-        	{
-            print_action(ph, "is sleeping");
-            ft_usleep(ph->data->sleep);
-            print_action(ph, "is thinking");
-        	}
-        return NULL;
+			philo_rest_max(ph);
+			return (NULL);
 		}
 		pthread_mutex_unlock(&ph->data->meal_check);
 		print_action(ph, "is sleeping");

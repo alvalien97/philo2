@@ -55,11 +55,6 @@ void	init_philos(t_data *d)
 int	init_all(t_data *d, int ac, char **av)
 {
 	d->count = atoi(av[1]);
-	if (d->count == 1)
-	{
-		write(2, "0 1 died\n", 9);
-		return (0);
-	}
 	d->die = atoi(av[2]);
 	d->eat = atoi(av[3]);
 	d->sleep = atoi(av[4]);
@@ -74,5 +69,13 @@ int	init_all(t_data *d, int ac, char **av)
 	if (!d->forks || !d->philos || !init_mutexes(d))
 		return (0);
 	init_philos(d);
+	if (d->count == 1)
+	{
+		pthread_mutex_lock(&d->print);
+		printf("%d 1 died\n", d->die);
+		pthread_mutex_unlock(&d->print);
+		cleanup(d);
+		return (0);
+	}
 	return (1);
 }
